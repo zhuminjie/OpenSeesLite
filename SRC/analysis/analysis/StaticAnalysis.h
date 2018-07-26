@@ -40,9 +40,6 @@
 
 // AddingSensitivity:BEGIN //////////////////////////////////
 #ifdef _RELIABILITY
-#include <SensitivityAlgorithm.h>
-#include<Integrator.h>
-#include<IncrementalIntegrator.h>
 #endif
 // AddingSensitivity:END ////////////////////////////////////
 
@@ -90,7 +87,6 @@ class StaticAnalysis: public Analysis
 
     // AddingSensitivity:BEGIN ///////////////////////////////
 #ifdef _RELIABILITY
-    int setSensitivityAlgorithm(/*SensitivityAlgorithm*/Integrator *theSensitivityAlgorithm);
 #endif
     // AddingSensitivity:END /////////////////////////////////
     

@@ -207,19 +207,19 @@ StaticAnalysis::analyze(int numSteps)
 
 #ifdef _RELIABILITY
 
-//	if (theSensitivityAlgorithm != 0) {
-//	opserr<<"Static analysiss:reliability is defined"<<endln;
+	if (theIntegrator!=0 && theIntegrator->activateSensitivity()) {
+	opserr<<"Static analysiss:sensitivity is defined"<<endln;
 
-//		result = theSensitivityAlgorithm->computeSensitivities();
-//		if (result < 0) {
-//			opserr << "StaticAnalysis::analyze() - the SensitivityAlgorithm failed";
-//			opserr << " at iteration: " << i << " with domain at load factor ";
-//			opserr << the_Domain->getCurrentTime() << endln;
-//			the_Domain->revertToLastCommit();	    
-//			theIntegrator->revertToLastStep();
-//			return -5;
-//		}    
-//	}
+		result = theIntegrator->computeSensitivities();
+		if (result < 0) {
+			opserr << "StaticAnalysis::analyze() - the SensitivityAlgorithm failed";
+			opserr << " at iteration: " << i << " with domain at load factor ";
+			opserr << the_Domain->getCurrentTime() << endln;
+			the_Domain->revertToLastCommit();	    
+			theIntegrator->revertToLastStep();
+			return -5;
+		}    
+	}
 #endif
 
 
@@ -468,23 +468,6 @@ StaticAnalysis::domainChanged(void)
 
 // AddingSensitivity:BEGIN //////////////////////////////
 
-#ifdef _RELIABILITY
-int 
-StaticAnalysis::setSensitivityAlgorithm(Integrator *passedSensitivityAlgorithm)
-{
-  opserr << "StaticAnalysis::setSensitivityAlgorithm() - DOES NOTHING!\n";
-  int result = 0;
-  
-  // invoke the destructor on the old one
-  //  if (theSensitivityAlgorithm != 0) {
-  //    delete theSensitivityAlgorithm;
-  //  }
-  
-  //theSensitivityAlgorithm = passedSensitivityAlgorithm;
-  
-    return 0;
-}
-#endif
 
 // AddingSensitivity:END ///////////////////////////////
 

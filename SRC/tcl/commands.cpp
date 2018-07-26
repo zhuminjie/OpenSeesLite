@@ -1293,13 +1293,13 @@ sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 	   if (theStaticAnalysis != 0 && theStaticIntegrator != 0) {
                theIntegrator = theStaticIntegrator;
              
-        theIntegrator->shouldComputeAtEachStep();
+        theIntegrator->setComputeType(analysisTypeTag);
        	theIntegrator->activateSensitivityKey();
     
 	   } else if (theTransientAnalysis != 0 && theTransientIntegrator != 0) {
   
     theIntegrator = theTransientIntegrator;
-    theIntegrator->shouldComputeAtEachStep();
+    theIntegrator->setComputeType(analysisTypeTag);
     theIntegrator->activateSensitivityKey();
 
 	}
@@ -1310,20 +1310,6 @@ sensitivityAlgorithm(ClientData clientData, Tcl_Interp *interp, int argc, TCL_Ch
 	}	
 	// ---- by Quan 2009 for recover the previous framework ---
 
-	if (theIntegrator->shouldComputeAtEachStep()) {
-	
-		if (theStaticAnalysis !=0)
-			theStaticAnalysis->setSensitivityAlgorithm(theIntegrator);
-		else if (theTransientAnalysis !=0)
-			theTransientAnalysis->setSensitivityAlgorithm(theIntegrator);
-		else if (theVariableTimeStepTransientAnalysis !=0)
-			theVariableTimeStepTransientAnalysis->setSensitivityAlgorithm(theIntegrator);
-		else {
-			// do nothing		
-		}
-	
-	
-	}
         }
 
 	return TCL_OK;
@@ -2312,9 +2298,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // AddingSensitivity:BEGIN ///////////////////////////////
 #ifdef _RELIABILITY
-	if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-		theStaticAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-	}
 #endif
 // AddingSensitivity:END /////////////////////////////////
 #ifdef _PFEM
@@ -2439,18 +2422,6 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 
 // AddingSensitivity:BEGIN ///////////////////////////////
 #ifdef _RELIABILITY
-	if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
-
-	  /* This if-statement cannot possibly stay in the code -- MHS
-	  if(theSensitivityAlgorithm->newAlgorithm()){
-	    opserr << "WARNING original sensitivity algorothm needs to be specified \n";
-	    opserr << "for static analysis \n";
-	    return TCL_ERROR;
-	  }
-	  */
-		
-	  theTransientAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-	}
 #endif
 // AddingSensitivity:END /////////////////////////////////
 
@@ -2561,22 +2532,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 					       *theStaticIntegrator,
 					       theTest);
 
-		if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
 
-		  /* This if-statement cannot stay -- MHS
-		  if(!theSensitivityAlgorithm->newAlgorithm()){
-		    opserr << "WARNING new sensitivity algorothm needs to be specified \n";
-		    opserr << "for reliability static analysis \n";
-		    return TCL_ERROR;
-		  }
-		  */
-
-		  theStaticAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-		} else {
-			opserr << "Faltal SensitivityAlgorithm must be definde before defining \n";
-			opserr << "ReliabilityStaticAnalysis with computeateachstep\n";
-			return TCL_ERROR;
-		}
 
     } else if (strcmp(argv[1],"ReliabilityTransient") == 0) {
 		// make sure all the components have been built,
@@ -2623,22 +2579,7 @@ specifyAnalysis(ClientData clientData, Tcl_Interp *interp, int argc,
 							     *theTransientIntegrator,
 							     theTest);
 
-		if (theSensitivityAlgorithm != 0 && theSensitivityAlgorithm->shouldComputeAtEachStep()) {
 
-		  /* This if-statement must go -- MHS
-		  if(!theSensitivityAlgorithm->newAlgorithm()){
-		    opserr << "WARNING new sensitivity algorothm needs to be specified \n";
-		    opserr << "for reliability static analysis \n";
-		    return TCL_ERROR;
-		  }
-		  */
-
-			theReliabilityTransientAnalysis->setSensitivityAlgorithm(theSensitivityAlgorithm);
-		}else{
-			opserr << "Faltal SensitivityAlgorithm must be definde before defining \n";
-			opserr << "ReliabilityStaticAnalysis with computeateachstep\n";
-			return TCL_ERROR;
-		}
 // AddingSensitivity:END /////////////////////////////////
 #endif
 

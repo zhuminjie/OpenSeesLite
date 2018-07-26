@@ -76,10 +76,9 @@ public:
     virtual double getLambdaSensitivity(int gradNumber);
     virtual int computeSensitivities();//Abbas
     int sensitivityDomainChanged();//Abbass
-    bool shouldComputeAtEachStep(void);
+    void setComputeType(int flag);
     bool newAlgorithm(void) {return true;};
-    virtual  bool computeSensitivityAtEachIteration();
-    bool activateSensitivityKey();
+    void activateSensitivityKey() {SensitivityKey=true;}
     bool activateSensitivity( ){return SensitivityKey;}; 
      ///////////////////////////////Abbas//////////////////
 
