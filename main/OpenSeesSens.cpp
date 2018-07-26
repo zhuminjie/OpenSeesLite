@@ -339,6 +339,9 @@ int main(int argc, char** argv)
     double value = node2->getDispSensitivity(dof,gradIndex);
     opserr<<"Node 2 Disp sensitivity = "<<value<<"\n";
 
+    double factor = pattern->getLoadFactor();
+    opserr<<"Exact soln = "<<-P*factor*L*L/(2*E*E*I)<<"\n";
+
     // clean up
     theStaticAnalysis->clearAll();
     delete theStaticAnalysis;
