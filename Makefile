@@ -107,7 +107,6 @@ wipe:
 		$(CD) ..; \
 	done );
 	@$(RM) $(RMFLAGS) $(WIPE_LIBS) *.o *~ core 
-	@$(CD) $(FE)/../EXAMPLES;  $(MAKE) wipe;
 
 wipeall: 
 	@( \
@@ -119,7 +118,6 @@ wipeall:
 		$(CD) ..; \
 	done );
 	@$(RM) $(RMFLAGS) $(WIPE_LIBS) *.o *~ core
-	@$(CD) $(FE)/../EXAMPLES;  $(MAKE) wipe
 	@$(RM) $(RMFLAGS) $(OpenSees_PROGRAM);
 
 help:
