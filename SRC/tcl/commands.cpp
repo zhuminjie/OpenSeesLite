@@ -5680,7 +5680,6 @@ removeObject(ClientData clientData, Tcl_Interp *interp, int argc,
 	}
     else if (strcmp(argv[1],"sensitivityAlgorithm") == 0) {
 		if (theSensitivityAlgorithm != 0) {
-			theStaticAnalysis->setSensitivityAlgorithm(0);
 			theSensitivityAlgorithm = 0;
 			theSensitivityIntegrator = 0;
 		}
