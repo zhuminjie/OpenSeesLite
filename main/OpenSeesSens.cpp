@@ -88,6 +88,11 @@
 #include <UmfpackGenLinSolver.h>
 #include <Linear.h>
 #include <PlainNumberer.h>
+#include <ElasticPPMaterial.h>
+#include <WideFlangeSectionIntegration.h>
+#include <FiberSection2d.h>
+#include <CorotCrdTransf2d.h>
+#include <Steel01.h>
 
 // Global variables
 StandardStream sserr;
@@ -229,6 +234,16 @@ int main(int argc, char** argv)
     double A = 20.0;
     double I = 1400.0;
     double P = 30.0;
+    double Fy = 36000.0;
+    double hardeningRatio = 0.02;
+
+    // W 24 x 62
+    double d = 23.7;
+    double tw = 0.43;
+    double bf = 7.04;
+    double tf = 0.59;
+    int Nfw = 10;
+    int Nff = 10;
 
     // create two end nodes
     int ndtag1 = 1, ndtag2 = 2;
@@ -248,11 +263,27 @@ int main(int argc, char** argv)
     // create a geometric transformation
     Vector jntOffsetI(2), jntOffsetJ(2);
     int transfTag = 1;
-    LinearCrdTransf2d* transf = new LinearCrdTransf2d(transfTag,jntOffsetI,jntOffsetJ);
+    //LinearCrdTransf2d* transf = new LinearCrdTransf2d(transfTag,jntOffsetI,jntOffsetJ);
+    CorotCrdTransf2d* transf = new CorotCrdTransf2d(transfTag,jntOffsetI,jntOffsetJ);
+
+    // create steel01 material
+    int matTag = 1;
+    Steel01* mat = new Steel01(matTag, Fy, E, hardeningRatio);
+
+    // create a wide flange section
+    WideFlangeSectionIntegration wfsect(d, tw, bf, tf, Nfw, Nff);
+    int numFibers = wfsect.getNumFibers();
+    UniaxialMaterial** mats = new UniaxialMaterial*[numFibers];
+    wfsect.arrangeFibers(mats, mat);
+
+    int secTag = 1;
+    FiberSection2d* section = new FiberSection2d(secTag, numFibers, mats, wfsect);
+    delete [] mats;
 
     // create an elastic section
-    int secTag = 1;
-    ElasticSection2d* section = new ElasticSection2d(secTag,E,A,I);
+    // int secTag = 1;
+    // ElasticSection2d* section = new ElasticSection2d(secTag,E,A,I);
+    
 
     // create a beam integration
     BeamIntegration* bi = new LegendreBeamIntegration;
@@ -295,14 +326,14 @@ int main(int argc, char** argv)
 
     // create static analysis
     AnalysisModel* theAnalysisModel = new AnalysisModel;
-    CTestNormUnbalance* theTest = new CTestNormUnbalance(1.0e-8,10,0);
-    //NewtonRaphson* theAlgorithm = new NewtonRaphson(*theTest);
-    Linear* theAlgorithm = new Linear;
+    CTestNormUnbalance* theTest = new CTestNormUnbalance(1.0e-8,10,1);
+    NewtonRaphson* theAlgorithm = new NewtonRaphson(*theTest);
+    //Linear* theAlgorithm = new Linear;
     PlainHandler* theHandler = new PlainHandler;
     DOF_Numberer* theNumberer = new PlainNumberer;
 
     int dof = 1;
-    double incr = 0.1;
+    double incr = 0.1*100;
     int numIter = 1;
     DisplacementControl* theStaticIntegrator =
 	new DisplacementControl(ndtag2,dof,incr,domain,numIter,
@@ -334,13 +365,14 @@ int main(int argc, char** argv)
     }
 
     // print node 2 displacements
+    opserr<<"Node 2 Disp = "<<node2->getTrialDisp();
     int gradIndex = param->getGradIndex();
     dof = 3;
     double value = node2->getDispSensitivity(dof,gradIndex);
     opserr<<"Node 2 Disp sensitivity = "<<value<<"\n";
 
     double factor = pattern->getLoadFactor();
-    opserr<<"Exact soln = "<<-P*factor*L*L/(2*E*E*I)<<"\n";
+    opserr<<"Elastic Linear soln = "<<-P*factor*L*L/(2*E*E*I)<<"\n";
 
     // clean up
     theStaticAnalysis->clearAll();
