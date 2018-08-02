@@ -341,13 +341,22 @@ int main(int argc, char** argv)
     PlainHandler* theHandler = new PlainHandler;
     DOF_Numberer* theNumberer = new PlainNumberer;
 
-    int dof = 1;
-    double incr = 0.1*100;
+    int dof = 0;
+    double loadfactor = 44.35;
+    int numsteps = 10;
     int numIter = 1;
-    DisplacementControl* theStaticIntegrator =
-	new DisplacementControl(nodes.back()->getTag()
-				,dof,incr,domain,numIter,
-				incr,incr);
+    double incr = loadfactor/numsteps;
+    LoadControl* theStaticIntegrator = new LoadControl(incr,numIter,incr,incr);
+
+
+    // int dof = 1;
+    // double incr = 0.1*100;
+    // int numIter = 1;
+    // int numsteps = 10;
+    // DisplacementControl* theStaticIntegrator =
+    // 	new DisplacementControl(nodes.back()->getTag()
+    // 				,dof,incr,domain,numIter,
+    // 				incr,incr);
     
     UmfpackGenLinSolver* theSolver = new UmfpackGenLinSolver;
     UmfpackGenLinSOE* theSOE = new UmfpackGenLinSOE(*theSolver);
@@ -369,7 +378,7 @@ int main(int argc, char** argv)
     theStaticIntegrator->activateSensitivityKey();
 
     // perform analysis
-    if (theStaticAnalysis->analyze(1) < 0) {
+    if (theStaticAnalysis->analyze(numsteps) < 0) {
 	opserr << "WARNING: failed to do analysis\n";
 	return -1;
     }
@@ -383,6 +392,8 @@ int main(int argc, char** argv)
 
     double factor = pattern->getLoadFactor();
     opserr<<"Elastic Linear soln = "<<-P*factor*L*L/(2*E*E*I)<<"\n";
+
+    opserr<<"Load factor = "<<factor<<"\n";
 
     // clean up
     theStaticAnalysis->clearAll();
